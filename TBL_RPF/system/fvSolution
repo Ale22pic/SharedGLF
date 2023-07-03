@@ -1,0 +1,148 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers {}
+
+flowSolver
+{
+    solver            GMRES;
+    GMRES
+    {
+        preconditioner    LUSGS;
+        maxIter           10;
+        nDirections           5;
+        tolerance         1e-9;
+        relTol      1e-2;
+    }
+}
+
+pseudoTime
+{
+    nPseudoCorr       20;
+    pseudoTol         1e-12;
+    pseudoTolRel      1e-12;
+    pseudoCoNum       10;
+    pseudoCoNumMin	1;
+    pseudoCoNumMax    100;
+
+}
+
+
+fieldBounds
+{
+    // With bounding
+    p      1e-6     1e6;
+    rho    1e-6     1e6;
+    e      1e-6     1e6;
+    h      1e-6     1e6;
+    rhoE   1e-6     1e6;
+    T      1e-6    3000;
+    U    1000;
+}
+
+
+solvers
+{
+ "p.*" 
+{
+        solver           PBiCGStab;
+	preconditioner  DILU;
+        tolerance        1e-14;
+        relTol           0.001;
+        smoother         GaussSeidel;
+        nPreSweeps       0;
+        nPostSweeps      2;
+        cacheAgglomeration on;
+        agglomerator     faceAreaPair;
+        nCellsInCoarsestLevel 10;
+        mergeLevels      1;
+        maxIter         15;
+}
+
+"U.*"
+{
+        solver           PBiCGStab;
+        preconditioner   DILU;
+        smoother         GaussSeidel;
+        tolerance        1e-14;
+        relTol           0.01;
+        nSweeps          1;
+}
+
+Phi
+{
+  $p;
+}
+"cellDisplacement.*"
+{
+        solver           PBiCGStab;
+        preconditioner   DIC;
+        tolerance        1e-10;
+        relTol           0.00001;
+        nSweeps          1;
+}
+
+"(k|epsilon|omega|nuTilda|kFinal|epsilonFinal|omegaFinal|nuTildaFinal|h|e)"
+{
+        solver           PBiCGStab;
+        preconditioner   DILU;
+        tolerance        1e-16;
+        relTol           0.0;
+        nSweeps          1;
+}
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 4;
+    consistent    yes;
+    pMinFactor 0.1;
+    pMaxFactor 2;
+    transonic yes;
+
+}
+
+potentialFlow
+{
+    nNonOrthogonalCorrectors 50;
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p               1.0;
+    }
+    equations
+    {
+        p               1.0;
+        U               0.9;
+        k               0.5;
+        omega           0.5;
+	epsilon           0.9;
+	nuTilda         0.8;
+	e         0.8;
+    }
+}
+
+//cache
+//{
+//    grad(U);
+//}
+
+
+// ************************************************************************* //
