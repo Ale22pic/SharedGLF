@@ -1,0 +1,97 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+application     	rhoEnergyFoamOriginalOpt;
+
+startFrom       	startTime;
+
+startTime       	0;
+
+stopAt          	endTime;
+
+endTime         	0.1;
+
+deltaT          	1e-10;  
+
+writeControl    	runTime;
+
+writeInterval   	0.0001;
+
+purgeWrite      	0;
+
+writeFormat     	ascii;
+
+writePrecision  	9;
+
+writeCompression	off;
+
+timeFormat      	general;
+
+timePrecision   	6;
+
+runTimeModifiable 	true;
+
+adjustTimeStep  	yes;
+
+maxCo           	0.2;
+
+maxDeltaT       	1e-06;
+
+pressArtDiff		true; //activate artificial diffusion on pressure 
+convArtDiff		true; //activate artificial diffusion on convective terms
+
+ducLevelPress		0.00;
+ducLevelConv		0.05;
+epsilon			423405;
+kp			0.25;
+ku			0.75;
+rm			0.875;
+mInfty			0.765;
+
+functions
+{	
+	writeduc
+	{ 	
+		type	 		writeObjects;
+		libs			( "libutilityFunctionObjects.so" );
+		objects			( "ducSensor" );
+		writeControl		outputTime;
+		writeInterval		1;
+	}
+
+	forceCoeffs
+        {
+                type            	forceCoeffs;
+                libs            	( forces );
+                writeControl    	writeTime;
+                rho             	rhoInf;
+                rhoInf          	0.858;
+		liftDir			(0 1 0);
+		dragDir			(1 0 0);
+		CofR			(0.5 0 0);
+		pitchAxis		(0 0 1);
+                magUInf         	291.0;
+		lRef			1;
+		Aref			0.28125; // mesh span = 0.6, bump height = 0.46875
+                patches         	(my-wall);
+        }
+
+
+}
+
+// ************************************************************************* //

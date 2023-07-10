@@ -1,0 +1,12 @@
+                type                    pressure;
+                libs                    ( fieldFunctionObjects );
+                writeControl            writeTime;
+                result                  Cp;
+                mode                    staticCoeff;
+                rho                     rhoInf;
+                rhoInf                  0.858;
+                U                       UInf;
+                UInf                    (291.0 0 0);
+                pInf                    68000;
+                patches                 (my-wall);
+
